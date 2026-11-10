@@ -24,7 +24,11 @@
                              一起收进 tarball（真踩过，130 KB 里 7 个字节码），
                              以及反向缺陷：files 少写一个目录，包变小、
                              装上去技能面或执行层直接空
-  8. mutate-pack.mjs       反向验证第 7 条（5 条变异，含正向+反向两类）
+  8. collision.mjs         产物不串号（两个产品同日同标的会撞同名文件）
+                           → 防：后跑的报告覆盖先跑的（实测 7737→7174 字节），
+                             两份都能打开、都不报错，只是内容被换掉
+  9. mutate-pack.mjs       反向验证第 7 条（5 条变异，含正向+反向两类）
+ 10. mutate-collision.mjs  反向验证第 8 条（2 条变异，均还原缺陷原始形态）
 
 为什么 4 与 5 必须同时存在：3 和 4 全绿只证明「实现能过用例」，
 不证明「用例真在检查那条判据」。第 5 步是唯一能证伪这件事的东西。
@@ -58,18 +62,20 @@ def main() -> int:
     args = ap.parse_args()
 
     steps: list[tuple[str, list[str]]] = [
-        ("1/8 资产同步闸（插件运行时 vs 产品源）", [sys.executable, "-X", "utf8", "sync_assets.py", "--check"]),
-        ("2/8 JS 语法", ["node", "--check", "index.js"]),
-        ("3/8 执行层烧烟（真跑 Python）", ["node", "test/smoke.mjs"]),
-        ("4/8 注册逻辑（真 cordis Context）", ["node", "test/host-sim.mjs"]),
-        ("5/8 端到端（按工具 schema 调用，含 data_path 文件入口）", ["node", "test/e2e-tool.mjs"]),
-        ("6/8 发布包闸（tarball 里到底有什么）", ["node", "test/pack-gate.mjs"]),
+        ("1/10 资产同步闸（插件运行时 vs 产品源）", [sys.executable, "-X", "utf8", "sync_assets.py", "--check"]),
+        ("2/10 JS 语法", ["node", "--check", "index.js"]),
+        ("3/10 执行层烧烟（真跑 Python）", ["node", "test/smoke.mjs"]),
+        ("4/10 注册逻辑（真 cordis Context）", ["node", "test/host-sim.mjs"]),
+        ("5/10 端到端（按工具 schema 调用，含 data_path 文件入口）", ["node", "test/e2e-tool.mjs"]),
+        ("6/10 发布包闸（tarball 里到底有什么）", ["node", "test/pack-gate.mjs"]),
+        ("7/10 产物不串号（两产品同日同标的不互覆盖）", ["node", "test/collision.mjs"]),
     ]
     if not args.fast:
         steps += [
-            ("7a/8 变异：执行层", ["node", "test/mutate.mjs"]),
-            ("7b/8 变异：注册逻辑", ["node", "test/mutate-index.mjs"]),
-            ("8/8 变异：发布包闸", ["node", "test/mutate-pack.mjs"]),
+            ("8/10 变异：执行层", ["node", "test/mutate.mjs"]),
+            ("9/10 变异：注册逻辑", ["node", "test/mutate-index.mjs"]),
+            ("9b/10 变异：发布包闸", ["node", "test/mutate-pack.mjs"]),
+            ("10/10 变异：产物不串号", ["node", "test/mutate-collision.mjs"]),
         ]
 
     for label, argv in steps:

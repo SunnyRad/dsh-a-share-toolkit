@@ -42,6 +42,9 @@ const PRODUCTS = {
     cwd: join(assetsDir, 'valuation'),
     title: 'A 股估值分位体检',
     skill: 'a-share-valuation-percentile',
+    // 报告子目录名。两个产品的产物文件名可能是同一个
+    // （同一只股票 + 同一天），必须分开落盘，详见 makeCheckupTool。
+    slug: 'valuation',
   },
   financial: {
     tool: 'a_share_financial_checkup',
@@ -50,6 +53,7 @@ const PRODUCTS = {
     cwd: join(assetsDir, 'financial'),
     title: 'A 股个股财务体检',
     skill: 'a-share-financial-checkup',
+    slug: 'financial',
   },
 };
 
@@ -157,7 +161,11 @@ export function apply(ctx, config = {}) {
         python: py.bin,
         scriptPath: product.script,
         cwd: product.cwd,
-        outDir: outputDir,
+        // 每个产品落自己的子目录。两个产品对同一只股票、同一天会产出
+        // **同名文件**（600519_SH_20250930.html），共用一个目录时后写的
+        // 直接覆盖先写的——两份都是真报告、都能打开，只是内容被换掉了。
+        // 2026-11-10 实测确证：估值 7737 字节被财务 7174 字节顶掉。
+        outDir: join(outputDir, product.slug),
         ...buildArgs(args),
       });
 
@@ -270,7 +278,9 @@ export function apply(ctx, config = {}) {
 
   ctx.effect(() => {
     const disposers = DEFINITIONS.map((definition) => ctx.tools.register(definition));
-    logger.info(`已注册 ${disposers.length} 个工具，报告输出目录 ${outputDir}`);
+    logger.info(
+      `已注册 ${disposers.length} 个工具，报告输出目录 ${outputDir}（按产品分 valuation/ 与 financial/ 两子目录）`,
+    );
     return () => {
       for (const dispose of disposers.reverse()) {
         try {
