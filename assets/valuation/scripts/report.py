@@ -77,7 +77,7 @@ def _gauge(percentile: Optional[float], label: str, size: int = 132) -> str:
         f'<path d="M {cx-r:.1f} {cy:.1f} A {r:.1f} {r:.1f} 0 0 1 {x:.1f} {y:.1f}" '
         f'fill="none" stroke="{color}" stroke-width="11" stroke-linecap="round"/>'
         f'<text x="{cx:.1f}" y="{cy-4:.1f}" text-anchor="middle" font-size="23" '
-        f'font-weight="700" fill="{color}">{p:.0f}%</text>'
+        f'font-weight="700" fill="{color}">{_pct(p)}</text>'
         f'<text x="{cx:.1f}" y="{cy+13:.1f}" text-anchor="middle" font-size="11" '
         f'fill="#6b7280">{_esc(label)}</text></svg>'
     )
@@ -352,14 +352,26 @@ def render(result: Dict[str, Any], source: str = "") -> str:
     if r.get("offline"):
         src_line += "（本报告生成过程未访问任何网络服务）"
 
+    # name 与 code 相同时（调用方只填了代码）不要印两遍。
+    # 实测样本 name=code='600200.SH' 时标题渲染成 `600200.SH 600200.SH`。
+    _nm = (r.get('name') or '').strip()
+    _cd = (r.get('code') or '').strip()
+    if _nm and _cd and _nm == _cd:
+        _title = f'<h1>{_esc(_cd)}'
+        _doc_title = f'{_esc(_cd)} 估值分位'
+    else:
+        _title = (f'<h1>{_esc(_nm or "本地数据")} '
+                  f'<span style="color:#94a3b8;font-weight:400">{_esc(_cd)}</span>')
+        _doc_title = f'{_esc(_nm)} {_esc(_cd)} 估值分位'
+
     return f"""<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{_esc(r.get('name'))} {_esc(r.get('code'))} 估值分位</title>
+<title>{_doc_title}</title>
 <style>{CSS}</style></head><body><div class="wrap">
 
 <header>
-  <h1>{_esc(r.get('name') or '本地数据')} <span style="color:#94a3b8;font-weight:400">{_esc(r.get('code'))}</span>
+  {_title}
     <span class="tag">{_esc(r.get('industry') or '未分类')}</span></h1>
   <div class="sub">数据日期 {_esc(r.get('trade_date'))} · 历史区间 {_esc(r.get('history_first'))} 至 {_esc(r.get('history_last'))}
     （{r.get('history_count', 0)} 个交易日）</div>

@@ -315,7 +315,7 @@ date,pe_ttm,pb_mrq,ps_ttm
 **买家可自证**（`tests/` 随包发布）：
 
 ```bash
-# 回归测试（101 条，含能力型边界 6 条）
+# 回归测试（128 条，含能力型边界 8 条）
 python -X utf8 -m unittest discover -s tests -p "test_*.py"
 ```
 
@@ -333,7 +333,7 @@ python -X utf8 tools/mutate.py
 python -X utf8 tools/pack.py --target all --check-only
 ```
 
-变异测试当前 **64/64 全部被对应测试精确打红**，
+变异测试当前 **82/82 全部被对应测试精确打红**，
 但这一条只能由开发者复现；买家能复现的是上面那份回归测试。
 
 ### 同业横截面：快照含本公司时会自动剔除

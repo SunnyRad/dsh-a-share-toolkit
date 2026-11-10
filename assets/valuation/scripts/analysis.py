@@ -272,13 +272,13 @@ def detect_divergence(metrics: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
         return out
     if gap > 0:
         out["reason"] = (
-            f"PE 分位 {a:.0f}% 显著高于 PB 分位 {b:.0f}%（差 {gap:+.0f} 个百分点）。"
+            f"PE 分位 {a:.1f}% 显著高于 PB 分位 {b:.1f}%（差 {gap:+.1f} 个百分点）。"
             "常见于盈利能力处于周期高位：利润被高估，PE 显得贵，"
             "而净资产端（PB）显示股价仍在历史低位。此时单看 PE 会误判为高估。"
         )
     else:
         out["reason"] = (
-            f"PE 分位 {a:.0f}% 显著低于 PB 分位 {b:.0f}%（差 {gap:+.0f} 个百分点）。"
+            f"PE 分位 {a:.1f}% 显著低于 PB 分位 {b:.1f}%（差 {gap:+.1f} 个百分点）。"
             "常见于盈利能力处于周期低位或一次性损失：利润被压缩，PE 显得便宜，"
             "但净资产端（PB）显示股价并不便宜。此时单看 PE 会误判为低估。"
         )
@@ -411,8 +411,8 @@ def recommend_metric(metrics: Dict[str, Dict[str, Any]],
         a, b = divergence.get("pe_pct"), divergence.get("pb_pct")
         detail = ""
         if gap is not None and a is not None and b is not None:
-            detail = (f"（PE 分位 {a:.0f}% 对 PB 分位 {b:.0f}%，"
-                      f"差 {gap:+.0f} 个百分点）")
+            detail = (f"（PE 分位 {a:.1f}% 对 PB 分位 {b:.1f}%，"
+                      f"差 {gap:+.1f} 个百分点）")
         return {
             "primary": "pb_mrq" if pb_ok else "pe_ttm",
             "secondary": "ps_ttm" if ps_ok else None,

@@ -80,7 +80,12 @@ def main() -> int:
         return 2
 
     m = r["metrics"]
-    print(f"{r['code']} {r['name']} [{r['industry'] or '-'}]  数据日期 {r['trade_date']}")
+    # name 与 code 相同时（调用方只填了代码）不要印两遍 —— 与 report.py 同一口径。
+    # 实测 name=code='600200.SH' 时摘要首行是 `600200.SH 600200.SH [-]`。
+    _nm = (r.get("name") or "").strip()
+    _cd = (r.get("code") or "").strip()
+    _head = _cd if (_nm and _cd and _nm == _cd) else f"{_cd} {_nm}"
+    print(f"{_head} [{r['industry'] or '-'}]  数据日期 {r['trade_date']}")
     print(f"  数据来源 {r['source']}")
     print(f"  历史 {r['history_first']} ~ {r['history_last']}（{r['history_count']} 个交易日）")
     for key in ("pe_ttm", "pb_mrq", "ps_ttm"):
@@ -98,7 +103,7 @@ def main() -> int:
             cur = "无数据"
         print(f"  {mm['label']:<8} 当前 {cur}  分位 {p_s}")
     if r["divergence"].get("diverged"):
-        print(f"  ⚠ 估值信号背离，差 {r['divergence']['gap']:+.0f} 个百分点")
+        print(f"  ⚠ 估值信号背离，差 {r['divergence']['gap']:+.1f} 个百分点")
     if r.get("warnings"):
         print(f"  适用性限制 {len(r['warnings'])} 条：")
         for w in r["warnings"]:
