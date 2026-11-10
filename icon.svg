@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="A-share checkup">
+  <title>A 股估值与财务体检</title>
+  <!-- 底：深色圆角方块，和侧边栏面板同族 -->
+  <rect width="64" height="64" rx="14" fill="#0f2b46"/>
+  <!-- 分位刻度：三道横向基线，表示「历史位置」 -->
+  <g stroke="#2f6f9f" stroke-width="1.6" opacity="0.55" stroke-linecap="round">
+    <line x1="12" y1="20" x2="52" y2="20"/>
+    <line x1="12" y1="32" x2="52" y2="32"/>
+    <line x1="12" y1="44" x2="52" y2="44"/>
+  </g>
+  <!-- 分位标记：当前值落在下四分位，用金点标出 -->
+  <circle cx="20" cy="44" r="4.2" fill="#f0b429"/>
+  <circle cx="20" cy="44" r="7.6" fill="none" stroke="#f0b429" stroke-width="1.4" opacity="0.45"/>
+  <!-- 上升柱：估值/盈利的位置感，避免「只有刻度没有数据」 -->
+  <g fill="#4da3e0">
+    <rect x="30" y="38" width="5" height="10" rx="1.2"/>
+    <rect x="38" y="32" width="5" height="16" rx="1.2"/>
+    <rect x="46" y="24" width="5" height="24" rx="1.2"/>
+  </g>
+</svg>

@@ -1,0 +1,6 @@
+# dsh bundle layer: inserts this package's plugin entry into the profile
+# composition. The entry module resolves from the profile's node_modules and
+# exports the cordis function-plugin form (name/inject/apply).
+- insert:
+    - id: a-share-toolkit
+      name: dsh-a-share-toolkit

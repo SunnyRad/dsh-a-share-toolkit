@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "A-share valuation & financial checkup",
+    "description": "Offline valuation-percentile and financial-statement checkups for A-shares. Bring your own data: this plugin never fetches quotes."
+  }
+}

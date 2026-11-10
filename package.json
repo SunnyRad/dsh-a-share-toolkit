@@ -1,0 +1,46 @@
+{
+  "name": "dsh-a-share-toolkit",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "DSH 插件：A 股估值分位体检 + 个股财务体检。能力型，不取数，全程离线，纯 Python 标准库。",
+  "exports": {
+    ".": "./index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "lib/*.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "skills",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "a-share",
+    "valuation",
+    "financial",
+    "offline"
+  ],
+  "author": "SunnyRad",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SunnyRad/dsh-a-share-toolkit.git"
+  },
+  "homepage": "https://github.com/SunnyRad/dsh-a-share-toolkit#readme",
+  "engines": {
+    "node": ">=22"
+  }
+}
