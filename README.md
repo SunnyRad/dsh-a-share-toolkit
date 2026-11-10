@@ -77,12 +77,23 @@ dsh plugin --profile <name> add github:SunnyRad/dsh-a-share-toolkit
 ## 开发
 
 ```powershell
-python -X utf8 check.py          # 资产同步闸 + 执行层 + 注册层 + 变异验证
+python -X utf8 check.py          # 十二层闸，全跑约 3 分钟
+python -X utf8 check.py --fast   # 跳过变异，只跑前八层
 node test/smoke.mjs              # 不依赖真实 profile 的冒烟
 ```
 
-`check.py` 四层各答一个问题：执行层（Python 跑得通吗）→ 注册层（apply 真注册了吗）
-→ 变异（上面两条判据真的会红吗）。只跑前两层等于只看「实现能过用例」。
+`check.py` 的十二层各答一个问题，顺序就是「先证据、再证伪」：
+
+| 层 | 在防什么 |
+|---|---|
+| 1 | 插件里的 Python 运行时 == 产品源（按内容哈希），防「手工拷一次就钉在旧版本」 |
+| 2–3 | 语法、执行层（真跑 Python、真读产物） |
+| 4–5 | 注册逻辑（真 cordis Context）、端到端（按工具 schema 调用，含 `data_path` 文件入口） |
+| 6–8 | 发布包闸（tarball 里到底有什么）、产物不串号、样本量门槛三档 |
+| 9–12 | 变异：上面每一条判据是不是真的会红 |
+
+只跑前两层等于只看「实现能过用例」，不证明「用例真在检查那条判据」。第 9–12 层是唯一能
+证伪这件事的东西——`test/mutate*.mjs` 把缺陷改回原始形态，测试必须红；不红就说明判据是恒真的。
 
 改动 `assets/` 里的 Python 后必须跑 `python -X utf8 sync_assets.py`——
 它按内容哈希核对插件运行时与产品源是否同源，手工拷一次就会让插件钉在旧版本上。
@@ -92,6 +103,18 @@ node test/smoke.mjs              # 不依赖真实 profile 的冒烟
 - 不提供数据，不内置任何数据源域名。
 - 不生成交易建议，输出的是统计口径下的分位与校验结果。
 - 报告是单文件自包含 HTML，双击可打开，无外部请求。
+
+## 仓库里那些看着像代码但不是的东西
+
+| 路径 | 是什么 |
+|---|---|
+| `storefront/` | 市场商品页素材：`icon-256.png` 是卡片图标（从 `icon.svg` 渲染，官方只收位图），另两张是报告真实渲染的截图 |
+| `screenshots.json` | 截图声明（1–8 张，路径相对该文件）。市场每晚构建时读一次 |
+| `assets/` | 插件运行时真正执行的 Python |
+| `skills/` | runtime skill 本体 |
+
+`storefront/` 与 `screenshots.json` 都在 `files` 白名单外，不进 npm 包
+（发布包闸的 `FORBIDDEN` 与 `REQUIRED` 双向核对着这件事，实包 74.1 KB / 21 条目）。
 
 ## License
 
