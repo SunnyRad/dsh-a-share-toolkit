@@ -87,7 +87,15 @@ def main() -> int:
         mm = m[key]
         p = mm["percentile"]
         p_s = f"{p:.1f}%" if p is not None else "不适用"
-        cur = mm["current"] if mm["current"] is not None else "无数据"
+        # 当前值必须走格式化，不能直接 print 原始 float。
+        # 2026-11-10 实测：PE 序列末值是 20+799*0.01，二进制算出来
+        # 27.990000000000002，于是工具摘要里就印出一长串尾数。
+        # HTML 报告走的是 report._n()（两位小数），两边不一致 ——
+        # 用户在对话里看到的是摘要，看到的恰恰是没格式化那个。
+        try:
+            cur = f"{float(mm['current']):,.2f}"
+        except (TypeError, ValueError):
+            cur = "无数据"
         print(f"  {mm['label']:<8} 当前 {cur}  分位 {p_s}")
     if r["divergence"].get("diverged"):
         print(f"  ⚠ 估值信号背离，差 {r['divergence']['gap']:+.0f} 个百分点")

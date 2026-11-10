@@ -5,7 +5,7 @@ display_name_en: A-Share Financial Checkup
 description: 当用户想对一份**已有的**财报数据做体检时使用——把用户自己取得的 A 股三张报表数据（JSON）变成一份自包含 HTML 报告，包含三表勾稽校验、财务红旗检测、杜邦拆解，以及同业横截面七项分位排名。本技能不提供、不抓取任何行情或财务数据，数据须由调用方提供。
 description_zh: 输入一份你已经拿到的三表数据，输出一份自包含 HTML 财务体检报告，含三表勾稽校验、财务红旗检测、杜邦拆解与同业七项分位排名。本技能只做计算，不提供数据。
 description_en: Turn financial statements you already have into a self-contained HTML health report with reconciliation checks, red-flag detection, DuPont decomposition, and seven peer percentiles. This skill computes only; it does not supply market or financial data.
-version: 0.2.1
+version: 0.2.2
 author: "梁丘"
 license: MIT
 examples_zh:
