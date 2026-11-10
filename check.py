@@ -27,8 +27,13 @@
   8. collision.mjs         产物不串号（两个产品同日同标的会撞同名文件）
                            → 防：后跑的报告覆盖先跑的（实测 7737→7174 字节），
                              两份都能打开、都不报错，只是内容被换掉
-  9. mutate-pack.mjs       反向验证第 7 条（5 条变异，含正向+反向两类）
- 10. mutate-collision.mjs  反向验证第 8 条（2 条变异，均还原缺陷原始形态）
+  9. sample-thresholds.mjs 样本量门槛三档（<250 拒绝 / 250–749 仅供参考 / >=750 正常）
+                           → 防：样本太短也照常出分位，用户拿没有统计意义的
+                             百分位当结论。判据锚「分位有没有被算出来」，
+                             不锚「有没有报错」—— 短样本本来就是正常返回
+ 10. mutate-pack.mjs       反向验证第 7 条（5 条变异，含正向+反向两类）
+ 11. mutate-collision.mjs  反向验证第 8 条（2 条变异，均还原缺陷原始形态）
+ 12. mutate-sample.mjs     反向验证第 9 条（2 条变异：门槛归零 / 降级阈值下调）
 
 为什么 4 与 5 必须同时存在：3 和 4 全绿只证明「实现能过用例」，
 不证明「用例真在检查那条判据」。第 5 步是唯一能证伪这件事的东西。
@@ -62,20 +67,22 @@ def main() -> int:
     args = ap.parse_args()
 
     steps: list[tuple[str, list[str]]] = [
-        ("1/10 资产同步闸（插件运行时 vs 产品源）", [sys.executable, "-X", "utf8", "sync_assets.py", "--check"]),
-        ("2/10 JS 语法", ["node", "--check", "index.js"]),
-        ("3/10 执行层烧烟（真跑 Python）", ["node", "test/smoke.mjs"]),
-        ("4/10 注册逻辑（真 cordis Context）", ["node", "test/host-sim.mjs"]),
-        ("5/10 端到端（按工具 schema 调用，含 data_path 文件入口）", ["node", "test/e2e-tool.mjs"]),
-        ("6/10 发布包闸（tarball 里到底有什么）", ["node", "test/pack-gate.mjs"]),
-        ("7/10 产物不串号（两产品同日同标的不互覆盖）", ["node", "test/collision.mjs"]),
+        ("1/12 资产同步闸（插件运行时 vs 产品源）", [sys.executable, "-X", "utf8", "sync_assets.py", "--check"]),
+        ("2/12 JS 语法", ["node", "--check", "index.js"]),
+        ("3/12 执行层烧烟（真跑 Python）", ["node", "test/smoke.mjs"]),
+        ("4/12 注册逻辑（真 cordis Context）", ["node", "test/host-sim.mjs"]),
+        ("5/12 端到端（按工具 schema 调用，含 data_path 文件入口）", ["node", "test/e2e-tool.mjs"]),
+        ("6/12 发布包闸（tarball 里到底有什么）", ["node", "test/pack-gate.mjs"]),
+        ("7/12 产物不串号（两产品同日同标的不互覆盖）", ["node", "test/collision.mjs"]),
+        ("8/12 样本量门槛三档（拒绝 / 仅供参考 / 正常）", ["node", "test/sample-thresholds.mjs"]),
     ]
     if not args.fast:
         steps += [
-            ("8/10 变异：执行层", ["node", "test/mutate.mjs"]),
-            ("9/10 变异：注册逻辑", ["node", "test/mutate-index.mjs"]),
-            ("9b/10 变异：发布包闸", ["node", "test/mutate-pack.mjs"]),
-            ("10/10 变异：产物不串号", ["node", "test/mutate-collision.mjs"]),
+            ("9/12 变异：执行层", ["node", "test/mutate.mjs"]),
+            ("9b/12 变异：注册逻辑", ["node", "test/mutate-index.mjs"]),
+            ("10/12 变异：发布包闸", ["node", "test/mutate-pack.mjs"]),
+            ("11/12 变异：产物不串号", ["node", "test/mutate-collision.mjs"]),
+            ("12/12 变异：样本量门槛", ["node", "test/mutate-sample.mjs"]),
         ]
 
     for label, argv in steps:
