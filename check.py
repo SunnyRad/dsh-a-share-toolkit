@@ -19,6 +19,12 @@
                                而 SKILL.md 教用户传文件路径）
   6. mutate*.mjs           反向验证上面几条判据真的会红
                            → 防：判据写成恒真，测试全绿却挡不住任何东西
+  7. pack-gate.mjs         发布包闸（npm pack 产出到底有什么）
+                           → 防：`files` 写对了但目录展开把 __pycache__/*.pyc
+                             一起收进 tarball（真踩过，130 KB 里 7 个字节码），
+                             以及反向缺陷：files 少写一个目录，包变小、
+                             装上去技能面或执行层直接空
+  8. mutate-pack.mjs       反向验证第 7 条（5 条变异，含正向+反向两类）
 
 为什么 4 与 5 必须同时存在：3 和 4 全绿只证明「实现能过用例」，
 不证明「用例真在检查那条判据」。第 5 步是唯一能证伪这件事的东西。
@@ -52,16 +58,18 @@ def main() -> int:
     args = ap.parse_args()
 
     steps: list[tuple[str, list[str]]] = [
-        ("1/6 资产同步闸（插件运行时 vs 产品源）", [sys.executable, "-X", "utf8", "sync_assets.py", "--check"]),
-        ("2/6 JS 语法", ["node", "--check", "index.js"]),
-        ("3/6 执行层烧烟（真跑 Python）", ["node", "test/smoke.mjs"]),
-        ("4/6 注册逻辑（真 cordis Context）", ["node", "test/host-sim.mjs"]),
-        ("5/6 端到端（按工具 schema 调用，含 data_path 文件入口）", ["node", "test/e2e-tool.mjs"]),
+        ("1/8 资产同步闸（插件运行时 vs 产品源）", [sys.executable, "-X", "utf8", "sync_assets.py", "--check"]),
+        ("2/8 JS 语法", ["node", "--check", "index.js"]),
+        ("3/8 执行层烧烟（真跑 Python）", ["node", "test/smoke.mjs"]),
+        ("4/8 注册逻辑（真 cordis Context）", ["node", "test/host-sim.mjs"]),
+        ("5/8 端到端（按工具 schema 调用，含 data_path 文件入口）", ["node", "test/e2e-tool.mjs"]),
+        ("6/8 发布包闸（tarball 里到底有什么）", ["node", "test/pack-gate.mjs"]),
     ]
     if not args.fast:
         steps += [
-            ("6a/6 变异：执行层", ["node", "test/mutate.mjs"]),
-            ("6b/6 变异：注册逻辑", ["node", "test/mutate-index.mjs"]),
+            ("7a/8 变异：执行层", ["node", "test/mutate.mjs"]),
+            ("7b/8 变异：注册逻辑", ["node", "test/mutate-index.mjs"]),
+            ("8/8 变异：发布包闸", ["node", "test/mutate-pack.mjs"]),
         ]
 
     for label, argv in steps:

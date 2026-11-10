@@ -16,6 +16,8 @@
     "icon.svg",
     "skills",
     "assets",
+    "!**/__pycache__",
+    "!**/*.pyc",
     "README.md",
     "LICENSE"
   ],
