@@ -5,7 +5,7 @@ display_name_en: A-Share Valuation Percentile
 description: 当用户问某只 A 股"估值贵不贵""现在能不能买""PE 高不高""处于历史什么位置"时使用。把一段 PE/PB/PS 历史序列变成一份自包含 HTML 估值分位报告——三项历史分位、盈实背离检测、周期股指标选择建议，以及同行业横截面排名。核心是正确处理亏损股负 PE、新股历史过短、周期股 PE 失效这三类会让结论反转的陷阱。本技能不取数：数据由调用方自带（CSV 或 JSON），全程离线。
 description_zh: 传入一段 PE/PB/PS 历史序列，输出一份自包含的 HTML 估值分位报告。正确处理亏损股负 PE、历史样本过短、周期股 PE 失效三类陷阱，避免把亏损误判成历史低位。不取数，数据自带，全程离线。
 description_en: Turn a PE/PB/PS history series you supply into a self-contained HTML valuation-percentile report with historical percentiles, divergence detection, cyclical-stock metric selection, and peer cross-section ranking. Correctly excludes negative PE from loss-makers. Bring-your-own-data; fully offline.
-version: 0.2.0
+version: 0.2.1
 author: "梁丘"
 license: MIT
 examples_zh:
