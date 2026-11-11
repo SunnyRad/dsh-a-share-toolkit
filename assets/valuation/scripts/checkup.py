@@ -80,10 +80,11 @@ def main() -> int:
         return 2
 
     m = r["metrics"]
-    # name 与 code 相同时（调用方只填了代码）不要印两遍 —— 与 report.py 同一口径。
+    # name 与 code 相同时（调用方只填了代码）不要印两遍。
     # 实测 name=code='600200.SH' 时摘要首行是 `600200.SH 600200.SH [-]`。
-    _nm = (r.get("name") or "").strip()
-    _cd = (r.get("code") or "").strip()
+    # ⚠️ 判断收敛到 report._identity_parts 一处（第十六条）：
+    #    原先 report 的 <h1>、checkup 的摘要、页脚各写一遍，页脚那处漏了。
+    _nm, _cd = report_mod._identity_parts(r)
     _head = _cd if (_nm and _cd and _nm == _cd) else f"{_cd} {_nm}"
     print(f"{_head} [{r['industry'] or '-'}]  数据日期 {r['trade_date']}")
     print(f"  数据来源 {r['source']}")

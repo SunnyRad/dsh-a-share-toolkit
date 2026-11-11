@@ -165,6 +165,35 @@ def _bucket(p: Optional[float]) -> tuple:
 # 故连同对应测试一并删除。
 
 
+def _identity_parts(r: dict) -> tuple:
+    """取出 (name, code)，都已 strip。
+
+    ⚠️ 2026-11-11（第十六条）：`name == code` 这个判断原本在**四处**各写一遍——
+    `report.render` 的 `<h1>`、`report.render` 的 `<title>`、
+    `checkup.main` 的摘要首行，以及**页脚**。前两处与摘要都去重了，
+    页脚那第四处漏掉，于是页面底部印：
+
+        600200.SH · 600200.SH · 数据日期 20250311
+
+    而同一个页面的标题只有一次 `600200.SH`。三处对、一处错，
+    且错的那处不在任何测试里——单测只查 `<h1>` 和摘要首行。
+
+    现在只在这里判断一次，新增出口只能复用。
+    """
+    return ((r.get("name") or "").strip(), (r.get("code") or "").strip())
+
+
+def _identity(r: dict) -> str:
+    """页脚用的「代码 · 名称」标识，name 与 code 相同时只印一次。
+
+    这是「页脚」这条输出路径的唯一实现点。名称缺省时退到代码。
+    """
+    nm, cd = _identity_parts(r)
+    if nm and cd and nm != cd:
+        return f"{cd} · {nm}"
+    return cd or nm or "本地数据"
+
+
 def render(result: Dict[str, Any], source: str = "") -> str:
     r = result
     m = r.get("metrics", {})
@@ -354,8 +383,8 @@ def render(result: Dict[str, Any], source: str = "") -> str:
 
     # name 与 code 相同时（调用方只填了代码）不要印两遍。
     # 实测样本 name=code='600200.SH' 时标题渲染成 `600200.SH 600200.SH`。
-    _nm = (r.get('name') or '').strip()
-    _cd = (r.get('code') or '').strip()
+    # 判断只在 _identity_parts 里做一次（第十六条），页脚复用 _identity。
+    _nm, _cd = _identity_parts(r)
     if _nm and _cd and _nm == _cd:
         _title = f'<h1>{_esc(_cd)}'
         _doc_title = f'{_esc(_cd)} 估值分位'
@@ -430,7 +459,7 @@ def render(result: Dict[str, Any], source: str = "") -> str:
 </section>
 
 <footer>
-  {_esc(r.get('code'))} · {_esc(r.get('name') or '本地数据')} · 数据日期 {_esc(r.get('trade_date'))}<br>
+  {_esc(_identity(r))} · 数据日期 {_esc(r.get('trade_date'))}<br>
   数据来源：{_esc(src_line)}（由调用方提供，本技能不提供数据）。<br>
   <b>本报告不构成投资建议。</b>
 </footer>
