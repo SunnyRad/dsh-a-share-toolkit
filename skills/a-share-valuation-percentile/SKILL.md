@@ -315,7 +315,7 @@ date,pe_ttm,pb_mrq,ps_ttm
 **买家可自证**（`tests/` 随包发布）：
 
 ```bash
-# 回归测试（128 条，含能力型边界 8 条）
+# 回归测试（148 条，含能力型边界 8 条）
 python -X utf8 -m unittest discover -s tests -p "test_*.py"
 ```
 
@@ -331,10 +331,20 @@ python -X utf8 tools/mutate.py
 
 # 打包前合规检查——仅开发仓库
 python -X utf8 tools/pack.py --target all --check-only
+
+# 派生文案是否还是当前代码口径（只重算两段 reason，数字不动）——仅开发仓库
+python -X utf8 tools/refresh_prose.py --check
 ```
 
-变异测试当前 **82/82 全部被对应测试精确打红**，
+变异测试当前 **94/94 全部被对应测试精确打红**，
 但这一条只能由开发者复现；买家能复现的是上面那份回归测试。
+
+> **`refresh_prose.py` 存在的理由**：背离与推荐两段文案是 `analysis` 当场拼的
+> **成品字符串**，会连同 JSON 一起归档。改了措辞之后，`rerender_reports.py`
+> 只能把旧字符串搬运一遍（第七条之三），`--check` 也只看 HTML 字节。
+> 这个工具按「纯派生」重算它们——两道闸保证它不会碰数字：
+> ① metrics 重算出的分位与 JSON 存的不一致时**拒绝处理**；
+> ② 除这两个字段外有任何差异就整体放弃。默认 dry-run，写盘要 `--apply`。
 
 ### 同业横截面：快照含本公司时会自动剔除
 
